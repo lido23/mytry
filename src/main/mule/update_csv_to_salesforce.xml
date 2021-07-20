@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3f2cbe8e-6b09-4384-ad7e-233a7f80371a" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="2fea96bc-880b-4546-9b75-480174f63855" >
+		<salesforce:cached-basic-connection username="lidiya_developer7125@salesforce.com" password="Jesus7125@" securityToken="jQcMPWCXF5p39BYs3uCWSKq3n" />
+	</salesforce:sfdc-config>
+	<flow name="update_csv_to_salesforceFlow" doc:id="10a7e580-b6a6-4b4e-9148-6a6cbdfdd107" >
+		<http:listener doc:name="Listener" doc:id="9b8260a5-c351-41d6-876c-279253df6e3b" config-ref="HTTP_Listener_config" path="/csv"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9bf9ef3c-23c4-4a4a-8084-bafb9f396c2a" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="eddca347-a9a3-4307-ae8b-306d79d562a4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Id: payload01.recordid as String,
+	Name: payload01.ename,
+	empno__c: payload01.eno,
+	salary__c: payload01.esalary
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:update doc:name="Update" doc:id="4c07e76a-668a-4542-b318-c0b135023a05" config-ref="Salesforce_Config" type="Employee__c"/>
+		<set-payload value="record updated sucessfully" doc:name="Set Payload" doc:id="674dc543-9bc8-4ec5-9c88-885aebf3bcb8" />
+	</flow>
+</mule>

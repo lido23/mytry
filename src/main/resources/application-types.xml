@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="CSV_type" format="csv">
+      <types:shape format="weave" example="examples/update_emp.csv"><![CDATA[%dw 2.0
+
+type CSV_type = Array<{|  recordid: Number,   ename: String,   eno: Number,   esalary: Number|}>
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#eddca347-a9a3-4307-ae8b-306d79d562a4">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="CSV_type"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
